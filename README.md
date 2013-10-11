@@ -20,16 +20,30 @@ Added resource: /shared/hive-split/UDFSplit.jar
 hive> create temporary function split as "org.apache.hadoop.hive.ql.udf.generic.UDFSplitWithLimit";
 OK
 
-# New behavior : return empty trailing fields
-hive> select split("a\tb\tc\t\td\t\t","\t") from dual;
-["a","b","c","","d","",""]
-Time taken: 6.731 seconds, Fetched: 1 row(s)
+# New behavior: apply "limit" as third parameter
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",2) from dual;
+["a","b"]
 
-# New behavior: supply a positive valued limit as third param
-hive> select split("a\tb\tc\t\td\t\t","\t",999) from dual;
-["a","b","c","","d","",""]
+# New behavior : returns empty trailing fields by default (third param not supplied)
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t") from dual;
+["a","b","ccc","","def","","","",""]
 
-#  OLD behavior by setting third param (limit) to 0
-hive> select split("a\tb\tc\t\td\t\t","\t",0) from dual;
-["a","b","c","","d"]
+# New behavior : return some empty trailing fields 
+\hive> select split("a\tb\tc\t\td\t\t\t\t","\t",6) from dual;
+["a","b","c","","d",""]
 
+# OLD behavior : return empty trailing fields. Note you must supply "0" as third param limit
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",0) from dual;
+["a","b","ccc","","def"]
+
+# Other examples
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",5) from dual;
+["a","b","ccc","","def"]
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",6) from dual;
+["a","b","ccc","","def",""]
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",9) from dual;
+["a","b","ccc","","def","","","",""]
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",999) from dual;
+["a","b","ccc","","def","","","",""]
+hive> select split("a\tb\tccc\t\tdef\t\t\t\t","\t",-1) from dual;
+["a","b","ccc","","def","","","",""]

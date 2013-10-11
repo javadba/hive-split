@@ -124,13 +124,13 @@ public class UDFSplitWithLimit extends GenericUDF {
           boolean limited = limit > 0;
           ArrayList<String> list = new ArrayList();
           while ((next = str.indexOf(ch, off)) != -1) {
-              if (!limited || list.size() < limit - 1) {
+              if (!limited || list.size() < limit) {
                   list.add(str.substring(off, next));
                   off = next + 1;
               } else {    // last one
-                  //assert (list.size() == limit - 1);
-                  list.add(str.substring(off, regex.length()));
-                  off = regex.length();
+                  // //assert (list.size() == limit - 1);
+                  // list.add(str.substring(off, off+));
+                  // off = regex.length();
                   break;
               }
           }
@@ -140,12 +140,12 @@ public class UDFSplitWithLimit extends GenericUDF {
 
           // Add remaining segment
           if (!limited || list.size() < limit)
-              // Here is the "strange" truncation behavior that is being modified
-//                list.add(str.substring(off, regex.length()));
+//              list.add(str.substring(off, regex.length()));
               list.add(str.substring(off));
 
           // Construct result
           int resultSize = list.size();
+          // Here is the "strange" truncation behavior that is being modified
           if (limit == 0)
               while (resultSize > 0 && list.get(resultSize - 1).length() == 0)
                   resultSize--;
